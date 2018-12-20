@@ -12,6 +12,7 @@ final class BadgeServiceHttp implements BadgeService {
         return null;
     }
 
+    @Override
     public String getBadgeWithEmpId(String empId) throws Exception{
 
         final String USER_AGENT = "Mozilla/5.0";
@@ -58,6 +59,7 @@ final class BadgeServiceHttp implements BadgeService {
         return response.toString();
     }
 
+    @Override
     public String returnBadge(String badgeId) throws Exception{
 
         final String USER_AGENT = "Mozilla/5.0";

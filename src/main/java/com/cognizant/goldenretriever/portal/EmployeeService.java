@@ -16,11 +16,11 @@ final class EmployeeService {
     @Autowired
     VisitorPortalRepository visitorPortalRepository;
 
-    BadgeServiceHttp badgeService = new BadgeServiceHttp();
+    BadgeService badgeService = new BadgeServiceHttp();
 
-    //void setBadgeService(BadgeService badgeService){
-    //   this.badgeService = badgeService;
-    //}
+    void setBadgeService(BadgeService badgeService){
+       this.badgeService = badgeService;
+    }
 
     public String checkin(Employee employee) throws Exception{
 
