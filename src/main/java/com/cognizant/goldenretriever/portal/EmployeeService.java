@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 final class EmployeeService {
@@ -22,16 +23,21 @@ final class EmployeeService {
     }
 
     public void checkin(Employee employee){
+
+
+        if(repository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
+            Optional<Employee> existingEmployee = repository.findByEmployeeId(employee.getEmployeeId());
+            VisitorPortal visitorEntry = new VisitorPortal(existingEmployee.get(),badgeService.getBadge(),new Date(),null);
+            visitorPortalRepository.save(visitorEntry);
+            return;
+        }
+
         VisitorPortal visitorEntry = new VisitorPortal(badgeService.getBadge(),new Date(),null);
         employee.addVisitor(visitorEntry);
         repository.save(employee);
     }
 
     public Employee checkout(Employee employee) {
-
-        System.out.println(repository.findByEmployeeId(
-                employee.getEmployeeId()).get());
-
         VisitorPortal visitorPortal =   repository.findByEmployeeId(
                 employee.getEmployeeId()).get()
                 .visitors

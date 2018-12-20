@@ -1,6 +1,7 @@
 package com.cognizant.goldenretriever.portal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,11 @@ public class EmployeeControllerTest {
         repository.deleteAll();
     }
 
+    @After
+    public void afterEach(){
+        repository.deleteAll();
+    }
+
     @Test
     public void postToCheckinReturnsFailWhenCredentialNotEntered() throws Exception {
 
@@ -78,10 +84,43 @@ public class EmployeeControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        Optional<Employee> actualEmployee= repository.findByEmployeeId("123456");
+        Optional<Employee> actualEmployee = repository.findByEmployeeId("123456");
 
         //Assert the repository
         assertThat(actualEmployee.get(), is(employee));
+
+    }
+
+
+    //@Test
+    public void postCheckinTwiceReturnsValueInRepository() throws Exception {
+
+        Employee employee = new Employee("123458","1234456789");
+
+        String employeeJson = mapper.writeValueAsString(employee);
+
+        mvc.perform(post("/checkin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(employeeJson))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        mvc.perform(post("/checkin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(employeeJson))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Iterable<VisitorPortal> visitors =  employeeService.visitorPortalRepository.findAll();
+        long size = visitors.spliterator().getExactSizeIfKnown();
+
+
+        //Assert the repository
+        assertThat(size, is(2L));
 
     }
 
@@ -103,10 +142,6 @@ public class EmployeeControllerTest {
 
     @Test
     public void postCheckoutDataReturnsValueInRepository() throws Exception {
-
-        //BadgeService mockBadgeService = mock(BadgeService.class);
-        //when(mockBadgeService.getBadge()).thenReturn("789775");
-        //employeeService.setBadgeService(mockBadgeService);
 
         Employee employee = new Employee("123457","1234456789");
 
