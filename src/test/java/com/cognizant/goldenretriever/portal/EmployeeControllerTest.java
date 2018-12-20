@@ -82,7 +82,7 @@ public class EmployeeControllerTest {
         Employee actualEmployee = repository.findByEmployeeId("123456").get();
         String badgeId = employeeService.visitorPortalRepository.findByEmployeeId(actualEmployee.getId()).get().getBadgeId();
 
-        //Assert the repository
+        //Assert the employeeRepository
         assertThat(content, is(badgeId));
 
     }
@@ -115,7 +115,7 @@ public class EmployeeControllerTest {
         long size = visitors.spliterator().getExactSizeIfKnown();
 
 
-        //Assert the repository
+        //Assert the employeeRepository
         assertThat(size, is(2L));
     }
 
@@ -162,7 +162,7 @@ public class EmployeeControllerTest {
 
         Optional<Employee> actualEmployee= repository.findByEmployeeId("123457");
 
-        //Assert the repository
+        //Assert the employeeRepository
         assertThat(actualEmployee.get(), is(employee));
 
     }

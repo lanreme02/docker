@@ -35,7 +35,7 @@ final class EmployeeController {
             return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
         }
 
-        if(!employeeService.repository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
+        if(!employeeService.employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
             return new ResponseEntity<>("Wrong Employee Id",HttpStatus.BAD_REQUEST);
         }
 

@@ -11,7 +11,7 @@ import java.util.Optional;
 final class EmployeeService {
 
     @Autowired
-    EmployeeRepository repository;
+    EmployeeRepository employeeRepository;
 
     @Autowired
     VisitorPortalRepository visitorPortalRepository;
@@ -25,8 +25,8 @@ final class EmployeeService {
     public String checkin(Employee employee){
 
 
-        if(repository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
-            Optional<Employee> existingEmployee = repository.findByEmployeeId(employee.getEmployeeId());
+        if(employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
+            Optional<Employee> existingEmployee = employeeRepository.findByEmployeeId(employee.getEmployeeId());
             VisitorPortal visitorEntry = new VisitorPortal(existingEmployee.get(),badgeService.getBadge(),new Date(),null);
             visitorPortalRepository.save(visitorEntry);
             return "";
@@ -34,12 +34,12 @@ final class EmployeeService {
 
         VisitorPortal visitorEntry = new VisitorPortal(badgeService.getBadge(),new Date(),null);
         employee.addVisitor(visitorEntry);
-        repository.save(employee);
+        employeeRepository.save(employee);
         return visitorEntry.getBadgeId();
     }
 
     public Employee checkout(Employee employee) {
-        VisitorPortal visitorPortal =   repository.findByEmployeeId(
+        VisitorPortal visitorPortal =   employeeRepository.findByEmployeeId(
                 employee.getEmployeeId()).get()
                 .visitors
                 .stream()
