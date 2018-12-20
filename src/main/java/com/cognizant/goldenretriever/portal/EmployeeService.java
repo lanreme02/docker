@@ -22,19 +22,20 @@ final class EmployeeService {
        this.badgeService = badgeService;
     }
 
-    public void checkin(Employee employee){
+    public String checkin(Employee employee){
 
 
         if(repository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
             Optional<Employee> existingEmployee = repository.findByEmployeeId(employee.getEmployeeId());
             VisitorPortal visitorEntry = new VisitorPortal(existingEmployee.get(),badgeService.getBadge(),new Date(),null);
             visitorPortalRepository.save(visitorEntry);
-            return;
+            return "";
         }
 
         VisitorPortal visitorEntry = new VisitorPortal(badgeService.getBadge(),new Date(),null);
         employee.addVisitor(visitorEntry);
         repository.save(employee);
+        return visitorEntry.getBadgeId();
     }
 
     public Employee checkout(Employee employee) {
@@ -45,8 +46,7 @@ final class EmployeeService {
                 .filter(value->value.getCheckinTime().getDay()== Calendar.getInstance().getTime().getDay())
                 .findFirst().get();
         visitorPortal.setCheckoutTime(new Date());
-        //employee.visitors.clear();
-        //employee.addVisitor(visitorPortal);
+
         visitorPortalRepository.save(visitorPortal);
         return employee;
     }

@@ -19,24 +19,26 @@ final class EmployeeController {
 
     @PostMapping("/checkin")
     public ResponseEntity<?> checkin(@RequestBody Employee employee) {
-        Exception e = new Exception("Phone Number and employee id missing");
-
-        if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        if(employee == null || employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
+            return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
         }
 
-        employeeService.checkin(employee);
+        String badgeId = employeeService.checkin(employee);
 
-        return new ResponseEntity(employee,HttpStatus.OK);
+        return new ResponseEntity(badgeId,HttpStatus.OK);
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(@RequestBody Employee employee) {
-        Exception e = new Exception("Phone Number and employee id missing");
 
-        if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty() || employee ==null ) {
+            return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
         }
+
+        if(!employeeService.repository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
+            return new ResponseEntity<>("Wrong Employee Id",HttpStatus.BAD_REQUEST);
+        }
+
         employeeService.checkout(employee);
         return new ResponseEntity(HttpStatus.OK);
     }

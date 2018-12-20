@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,12 +67,6 @@ public class EmployeeControllerTest {
     @Test
     public void postCheckinDataReturnsValueInRepository() throws Exception {
 
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadge()).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
         Employee employee = new Employee("123456","1234456789");
 
         String employeeJson = mapper.writeValueAsString(employee);
@@ -84,15 +79,16 @@ public class EmployeeControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        Optional<Employee> actualEmployee = repository.findByEmployeeId("123456");
+        Employee actualEmployee = repository.findByEmployeeId("123456").get();
+        String badgeId = employeeService.visitorPortalRepository.findByEmployeeId(actualEmployee.getId()).get().getBadgeId();
 
         //Assert the repository
-        assertThat(actualEmployee.get(), is(employee));
+        assertThat(content, is(badgeId));
 
     }
 
 
-    //@Test
+    @Test
     public void postCheckinTwiceReturnsValueInRepository() throws Exception {
 
         Employee employee = new Employee("123458","1234456789");
@@ -121,7 +117,6 @@ public class EmployeeControllerTest {
 
         //Assert the repository
         assertThat(size, is(2L));
-
     }
 
 
@@ -171,4 +166,5 @@ public class EmployeeControllerTest {
         assertThat(actualEmployee.get(), is(employee));
 
     }
+
 }
