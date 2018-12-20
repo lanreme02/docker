@@ -1,6 +1,7 @@
 package com.cognizant.goldenretriever.portal;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.SequenceGenerator;
 import java.util.Date;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 final class VisitorPortal {
 
     @Id
