@@ -1,0 +1,16 @@
+{
+  "name": "golden-retrievers-login",
+  "scripts": {
+  },
+  "env": {
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "stack": "heroku-18",
+  "buildpacks": [
+
+  ]
+}
