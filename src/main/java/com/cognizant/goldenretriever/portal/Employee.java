@@ -75,8 +75,8 @@ class Employee {
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
         return
-                employeeId.equals(employee.employeeId) &&
-                phoneNumber.equals(employee.phoneNumber);
+                Objects.equals(employeeId, employee.employeeId) &&
+                Objects.equals(phoneNumber, employee.phoneNumber);
     }
 
     @Override

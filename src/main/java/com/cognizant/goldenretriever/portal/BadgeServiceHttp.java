@@ -1,4 +1,6 @@
 package com.cognizant.goldenretriever.portal;
+import lombok.Generated;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -7,11 +9,13 @@ import java.net.URL;
 
 final class BadgeServiceHttp implements BadgeService {
 
+    @Generated
     @Override
     public String getBadge() {
         return null;
     }
 
+    @Generated
     @Override
     public String getBadgeWithEmpId(String empId) throws Exception{
 
@@ -59,6 +63,7 @@ final class BadgeServiceHttp implements BadgeService {
         return response.toString();
     }
 
+    @Generated
     @Override
     public String returnBadge(String badgeId) throws Exception{
 

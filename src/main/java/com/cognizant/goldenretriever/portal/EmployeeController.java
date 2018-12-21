@@ -23,7 +23,7 @@ final class EmployeeController{
 
     @PostMapping("/checkin")
     public ResponseEntity<?> checkin(@RequestBody Employee employee) throws Exception {
-        if(employee == null || employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
+        if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
             return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
         }
 
@@ -35,7 +35,7 @@ final class EmployeeController{
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(@RequestBody Employee employee) throws Exception{
 
-        if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty() || employee ==null ) {
+        if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
             return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
         }
 

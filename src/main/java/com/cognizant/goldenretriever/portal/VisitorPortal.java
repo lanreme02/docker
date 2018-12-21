@@ -3,6 +3,7 @@ package com.cognizant.goldenretriever.portal;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -55,29 +56,14 @@ final class VisitorPortal {
         this.checkoutTime=checkoutTime;
     }
 
-    public long getId() {
-        return id;
-    }
     public String getBadgeId() {
         return badgeId;
-    }
-
-    public Employee getEmployee() {
-        return employee;
     }
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
     }
 
-
-    public Date getCheckinTime() {
-        return checkinTime;
-    }
-
-    public Date getCheckoutTime() {
-        return checkoutTime;
-    }
 
     public void setCheckoutTime(Date checkoutTime) {
         this.checkoutTime = checkoutTime;

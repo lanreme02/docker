@@ -43,7 +43,6 @@ final class EmployeeService {
                 employee.getEmployeeId()).get()
                 .visitors
                 .stream()
-                .filter(value->value.getCheckinTime().getDay()== Calendar.getInstance().getTime().getDay())
                 .findFirst().get();
         visitorPortal.setCheckoutTime(new Date());
 
