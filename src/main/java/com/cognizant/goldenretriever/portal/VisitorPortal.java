@@ -60,6 +60,22 @@ final class VisitorPortal {
         return badgeId;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public Date getCheckinTime() {
+        return checkinTime;
+    }
+
+    public Date getCheckoutTime() {
+        return checkoutTime;
+    }
+
     public void setEmployee(Employee employee) {
         this.employee = employee;
     }

@@ -55,6 +55,7 @@ jacocoTestCoverageVerification {
 
 pmd {
 	ignoreFailures = false
+	pmdTest.enabled=true
 }
 
 test.finalizedBy jacocoTestCoverageVerification, jacocoTestReport
