@@ -1,7 +1,6 @@
 package com.cognizant.goldenretriever.portal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hibernate.loader.plan.build.spi.ExpandingCollectionQuerySpace;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
