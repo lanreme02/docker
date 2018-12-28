@@ -1,6 +1,7 @@
 package com.cognizant.goldenretriever.portal;
 import lombok.Generated;
 
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -107,6 +108,7 @@ final class BadgeServiceHttp implements BadgeService {
 
         //printing result from response
         System.out.println(response.toString());
+
 
         return response.toString();
     }

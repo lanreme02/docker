@@ -36,6 +36,7 @@ class Employee {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+
     Set<VisitorPortal> visitors = new HashSet<VisitorPortal>();
 
     public void addVisitor(VisitorPortal visitorPortal){
