@@ -1,45 +1,44 @@
 package com.cognizant.goldenretriever.portal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
 @Service
-final class EmployeeService {
+public class EmployeeService {
 
-    @Autowired
-    EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
-    @Autowired
-    VisitorPortalRepository visitorPortalRepository;
+    private final VisitorPortalRepository visitorPortalRepository;
 
-    BadgeService badgeService = new BadgeServiceHttp();
+    private final BadgeService badgeService;
 
-    void setBadgeService(BadgeService badgeService){
-       this.badgeService = badgeService;
+    EmployeeService(EmployeeRepository employeeRepository, VisitorPortalRepository visitorPortalRepository, BadgeService badgeService) {
+        this.employeeRepository = employeeRepository;
+        this.visitorPortalRepository = visitorPortalRepository;
+        this.badgeService = badgeService;
     }
 
-    public String checkin(Employee employee) throws Exception{
+
+    String checkin(Employee employee) {
 
 
-        if(employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
+        if (employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()) {
             Optional<Employee> existingEmployee = employeeRepository.findByEmployeeId(employee.getEmployeeId());
-            VisitorPortal visitorEntry = new VisitorPortal(existingEmployee.get(),badgeService.getBadgeWithEmpId(employee.getEmployeeId()),new Date(),null);
+            VisitorPortal visitorEntry = new VisitorPortal(existingEmployee.get(), badgeService.getBadgeWithEmpId(employee.getEmployeeId()), new Date(), null);
             visitorPortalRepository.save(visitorEntry);
             return "";
         }
 
-        VisitorPortal visitorEntry = new VisitorPortal(badgeService.getBadgeWithEmpId(employee.getEmployeeId()),new Date(),null);
+        VisitorPortal visitorEntry = new VisitorPortal(badgeService.getBadgeWithEmpId(employee.getEmployeeId()), new Date(), null);
         employee.addVisitor(visitorEntry);
         employeeRepository.save(employee);
         return visitorEntry.getBadgeId();
     }
 
-    public Employee checkout(Employee employee) throws Exception {
-        VisitorPortal visitorPortal =   employeeRepository.findByEmployeeId(
+    Employee checkout(Employee employee) {
+        VisitorPortal visitorPortal = employeeRepository.findByEmployeeId(
                 employee.getEmployeeId()).get()
                 .visitors
                 .stream()
@@ -47,7 +46,7 @@ final class EmployeeService {
         visitorPortal.setCheckoutTime(new Date());
 
         visitorPortalRepository.save(visitorPortal);
-        badgeService.returnBadge(visitorPortal.getBadgeId());
+        badgeService.returnBadge(employee.getEmployeeId(), visitorPortal.getBadgeId());
         return employee;
     }
 }

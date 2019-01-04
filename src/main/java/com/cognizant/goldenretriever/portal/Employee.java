@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-class Employee {
+public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_generator")

@@ -1,10 +1,11 @@
 package com.cognizant.goldenretriever.portal;
 
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,16 +14,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
 @RequestMapping("/")
-@Api(value="cvp", description="Cognizant Visitor Portal")
+@Api(value="CVP", description="Cognizant Visitor Portal")
 final class EmployeeController{
 
     @Autowired
-    EmployeeService employeeService;
+    private EmployeeService employeeService;
+
+    @Autowired
+    private VisitorPortalRepository visitorPortalRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
 
     @ApiOperation(value = "User Check-In", response = Iterable.class)
@@ -33,14 +40,12 @@ final class EmployeeController{
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     } )
     @PostMapping("/checkin")
-    public ResponseEntity<?> checkin(@RequestBody Employee employee) throws Exception {
+    public String checkin(@RequestBody Employee employee){
         if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
-            return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
+           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone Number and employee id missing");
         }
 
-        String badgeId = employeeService.checkin(employee);
-
-        return new ResponseEntity(badgeId,HttpStatus.OK);
+        return employeeService.checkin(employee);
     }
 
     @ApiOperation(value = "User Check-Out", response = Iterable.class)
@@ -51,22 +56,21 @@ final class EmployeeController{
             @ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
     } )
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(@RequestBody Employee employee) throws Exception{
+    public Employee checkout(@RequestBody Employee employee) {
 
         if(employee.getPhoneNumber().isEmpty() || employee.getEmployeeId().isEmpty()) {
-            return new ResponseEntity<>("Phone Number and employee id missing", HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone Number and employee id missing");
         }
 
-        if(!employeeService.employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
-            return new ResponseEntity<>("Wrong Employee Id",HttpStatus.BAD_REQUEST);
+        if(!employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Employee Id");
         }
 
-        employeeService.checkout(employee);
-        return new ResponseEntity(HttpStatus.OK);
+        return employeeService.checkout(employee);
     }
 
     @GetMapping
     public Iterable<VisitorPortal> getAllVisitors(){
-        return employeeService.visitorPortalRepository.findAll();
+        return visitorPortalRepository.findAll();
     }
 }

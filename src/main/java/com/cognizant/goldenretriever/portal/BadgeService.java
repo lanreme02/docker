@@ -4,9 +4,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface BadgeService {
-    String getBadge();
 
-    String getBadgeWithEmpId(String empId) throws Exception;
+    String getBadgeWithEmpId(String empId) ;
 
-    String returnBadge(String badgeId) throws Exception;
+    String returnBadge(String employeeId, String badgeId);
 }

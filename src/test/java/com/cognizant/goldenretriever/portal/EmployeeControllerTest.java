@@ -1,410 +1,143 @@
 package com.cognizant.goldenretriever.portal;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class EmployeeControllerTest {
 
-    @Autowired
-    ObjectMapper mapper = new ObjectMapper();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @MockBean
+    private EmployeeRepository repository;
+
+    @MockBean
+    private VisitorPortalRepository visitorPortalRepository;
+
+    @MockBean
+    private EmployeeService employeeService;
 
     @Autowired
-    private MockMvc mvc;
+    private EmployeeController employeeController;
 
-    @Autowired
-    EmployeeRepository repository;
-
-    @Autowired
-    EmployeeService employeeService;
-
-    @Before
-    public void beforeEach(){
-        repository.deleteAll();
-    }
-
-    @After
-    public void afterEach(){
-        repository.deleteAll();
-    }
 
     @Test
-    public void postToCheckinReturnsFailWhenCredentialNotEntered() throws Exception {
+    public void postCheckinDataReturnsBadgeNumber() {
 
+        Employee employee = new Employee("123456", "1234456789");
+        when(employeeService.checkin(employee)).thenReturn("789775");
 
-        String actual = mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"employeeId\" : \"\", \"phoneNumber\" : \"\" }"))
-                .andExpect(status().isBadRequest())
-                .andReturn().getResponse().getContentAsString();
+        final String actual = employeeController.checkin(employee);
 
         //Assert
-        assertThat(actual, is("Phone Number and employee id missing"));
+        assertThat(actual, is("789775"));
+        verify(employeeService).checkin(employee);
     }
 
-
     @Test
-    public void postCheckinDataReturnsValueInRepository() throws Exception {
+    public void postCheckinDataMissingEmployeeIdReturnsException() {
 
-
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("123456","1234456789");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        Employee actualEmployee = repository.findByEmployeeId("123456").get();
-        String badgeId = employeeService.visitorPortalRepository.findByEmployeeId(actualEmployee.getId()).get().getBadgeId();
-
-        //Assert the employeeRepository
-        assertThat(content, is(badgeId));
-
-    }
-
-
-    @Test
-    public void postCheckinTwiceReturnsValueInRepository() throws Exception {
-
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123458")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("123458","1234456789");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        when(mockBadgeService.getBadgeWithEmpId("123458")).thenReturn("789776");
-
-        mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        Iterable<VisitorPortal> visitors =  employeeService.visitorPortalRepository.findAll();
-        long size = visitors.spliterator().getExactSizeIfKnown();
-
-
-        //Assert the employeeRepository
-        assertThat(size, is(2L));
-    }
-
-
-    @Test
-    public void postToCheckoutReturnsFailWhenCredentialNotEntered() throws Exception {
-
-
-        String actual = mvc.perform(post("/checkout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"employeeId\" : \"\", \"phoneNumber\" : \"\" }"))
-                .andExpect(status().isBadRequest())
-                .andReturn().getResponse().getContentAsString();
+        Employee employee = new Employee("", "1234456789");
+        when(employeeService.checkin(employee)).thenReturn("789775");
 
         //Assert
-        assertThat(actual, is("Phone Number and employee id missing"));
-    }
-
-
-    @Test
-    public void CheckoutDataReturnsValueInRepository() throws Exception {
-
-
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123457")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("123457","1234456789");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        employeeService.checkout(employee);
-
-        when(mockBadgeService.returnBadge("789775")).thenReturn("");
-
-        String content = mvc.perform(post("/checkout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        Optional<Employee> actualEmployee= repository.findByEmployeeId("123457");
-
-        //Assert the employeeRepository
-        assertThat(actualEmployee.get(), is(employee));
+        thrown.expect(ResponseStatusException.class);
+        thrown.expectMessage("Phone Number and employee id missing");
+        employeeController.checkin(employee);
 
     }
 
     @Test
-    public void CheckoutReturnsInvalidEmployeeId() throws Exception {
+    public void postCheckinDataMissingPhoneNumberIdReturnsException() {
+        Employee employee = new Employee("12463", "");
+        when(employeeService.checkin(employee)).thenReturn("789775");
 
-
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123457")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("123457","1234456789");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        employeeService.checkout(employee);
-
-        when(mockBadgeService.returnBadge("789775")).thenReturn("");
-
-
-         employee = new Employee("123456","1234456789");
-         employeeJson = mapper.writeValueAsString(employee);
-
-         String content = mvc.perform(post("/checkout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-
-        //Assert the employeeRepository
-        assertThat(content, is("Wrong Employee Id"));
-
+        //Assert
+        thrown.expect(ResponseStatusException.class);
+        thrown.expectMessage("Phone Number and employee id missing");
+        employeeController.checkin(employee);
     }
 
-   @Test
-    public void returnEmptyListOfVisitorsInPortal() throws Exception {
+    @Test
+    public void postCheckoutDataMissingPhoneNumberIdReturnsException() {
+        Employee employee = new Employee("12463", "");
+        when(employeeService.checkout(employee)).thenReturn(employee);
 
-        //Exercise
-        // Exercise
-        final String actual = mvc.perform(get("/"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        //Assert
+        thrown.expect(ResponseStatusException.class);
+        thrown.expectMessage("Phone Number and employee id missing");
+        employeeController.checkout(employee);
+    }
 
-        // Assert
-        assertThat(actual, is("[]"));
+    @Test
+    public void postCheckoutDataMissingEmployeeIdReturnsException() {
+
+        Employee employee = new Employee("", "1234456789");
+        when(employeeService.checkout(employee)).thenReturn(employee);
+
+        //Assert
+        thrown.expect(ResponseStatusException.class);
+        thrown.expectMessage("Phone Number and employee id missing");
+        employeeController.checkout(employee);
 
     }
 
     @Test
-    public void CheckinReturnMissingFieldWhenGivenEmptyPhoneNumber() throws Exception {
-        BadgeService mockBadgeService = mock(BadgeService.class);
+    public void postCheckoutDataReturnsWrongEmployeeId() {
 
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
+        Employee employee = new Employee("123457", "1234456789");
+        when(employeeService.checkout(employee)).thenReturn(employee);
 
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("123456","");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        //Assert the employeeRepository
-        assertThat(content, is("Phone Number and employee id missing"));
-
+        thrown.expect(ResponseStatusException.class);
+        thrown.expectMessage("Wrong Employee Id");
+        employeeController.checkout(employee);
     }
 
     @Test
-    public void CheckinReturnMissingFieldWhenGivenEmployeeId() throws Exception {
-        BadgeService mockBadgeService = mock(BadgeService.class);
+    public void postCheckoutDataReturnsEmployee() {
 
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
+        Employee employee = new Employee("123457", "1234456789");
+        when(employeeService.checkin(employee)).thenReturn("789776");
+        when(employeeService.checkout(employee)).thenReturn(employee);
+        Optional<Employee> newEmployee = Optional.of(employee);
+        when(repository.findByEmployeeId("123457")).thenReturn(newEmployee);
 
-        employeeService.setBadgeService(mockBadgeService);
+        employeeController.checkin(employee);
+        Employee actualEmployee = employeeController.checkout(employee);
 
-        Employee employee = new Employee("","1345734");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        //Assert the employeeRepository
-        assertThat(content, is("Phone Number and employee id missing"));
-
+        //Assert
+        assertThat(actualEmployee, is(employee));
+        verify(employeeService).checkout(employee);
     }
 
     @Test
-    public void CheckinReturnMissingFieldWhenGivenEmployeeIdAndPhoneNumberAreMissing() throws Exception {
-        BadgeService mockBadgeService = mock(BadgeService.class);
+    public void getAllVisitorTestReturnsEmpty() {
+        when(visitorPortalRepository.findAll()).thenReturn(Collections.emptyList());
 
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
+        Iterable<VisitorPortal> actualVisitors = employeeController.getAllVisitors();
 
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("","");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkin")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        //Assert the employeeRepository
-        assertThat(content, is("Phone Number and employee id missing"));
-
+        //Assert
+        assertThat(actualVisitors, is(Collections.EMPTY_LIST));
     }
-
-
-    @Test
-    public void CheckoutReturnMissingFieldWhenGivenEmptyPhoneNumber() throws Exception {
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("123456","");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        //Assert the employeeRepository
-        assertThat(content, is("Phone Number and employee id missing"));
-
-    }
-
-    @Test
-    public void CheckoutReturnMissingFieldWhenGivenEmployeeId() throws Exception {
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("","1345734");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        //Assert the employeeRepository
-        assertThat(content, is("Phone Number and employee id missing"));
-
-    }
-
-    @Test
-    public void CheckoutReturnMissingFieldWhenGivenEmployeeIdAndPhoneNumberAreMissing() throws Exception {
-        BadgeService mockBadgeService = mock(BadgeService.class);
-
-        when(mockBadgeService.getBadgeWithEmpId("123456")).thenReturn("789775");
-
-        employeeService.setBadgeService(mockBadgeService);
-
-        Employee employee = new Employee("","");
-
-        String employeeJson = mapper.writeValueAsString(employee);
-
-        String content = mvc.perform(post("/checkout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(employeeJson))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        //Assert the employeeRepository
-        assertThat(content, is("Phone Number and employee id missing"));
-
-    }
-
-
-
-
-
 
 }

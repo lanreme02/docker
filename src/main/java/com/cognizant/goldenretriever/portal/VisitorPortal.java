@@ -3,7 +3,6 @@ package com.cognizant.goldenretriever.portal;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,7 +23,7 @@ final class VisitorPortal {
     @SequenceGenerator(name="vp_generator", sequenceName = "vp_sequence", allocationSize=1)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id")
     Employee employee;
 
