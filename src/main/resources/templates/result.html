@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Check-In</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Result</h1>
+<p th:text="'employeeId: ' + ${employee.employeeId}" />
+<p th:text="'phoneNumber: ' + ${employee.phoneNumber}" />
+<a href="/checkin">Checkin link</a>
+</body>
+</html>

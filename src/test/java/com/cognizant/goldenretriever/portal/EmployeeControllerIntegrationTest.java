@@ -3,6 +3,7 @@ package com.cognizant.goldenretriever.portal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.sql.DataSource;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,9 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Ignore
 public class EmployeeControllerIntegrationTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     private MockMvc mvc;
